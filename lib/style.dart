@@ -9,7 +9,12 @@ var theme = ThemeData(
     actionsIconTheme: IconThemeData(color: Colors.black87),
     //  하, 이놈 Jonna 까다롭네 IconThemeData라니...;
   ),
+  bottomNavigationBarTheme: BottomNavigationBarThemeData(
+    backgroundColor: Colors.white,
+    elevation: 2,
+    selectedItemColor: Colors.black,
+  ),
 );
 
-var _var1;
-// 이름 왼쪽에 '_'를 붙이면 다른 파일에 같이 import 안 됨
+// var _var1;
+// 이름 왼쪽에x '_'를 붙이면 다른 파일에 같이 import 안 됨
