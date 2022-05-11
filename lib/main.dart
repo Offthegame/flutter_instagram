@@ -14,8 +14,22 @@ void main() {
   ));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  var tab = 0;
+  // tab='홈';과 같이 표현해도 상관없음
+  // TabBar 써도 되긴 하지만 극한의 Customizing에서 한계옴
+
+  // 동적 UI만드는 방법의 핵심은 아래 3 STEP임
+  // 1. state에 현재 UI 상태 저장
+  // 2. state에 따라서 UI가 어떻게 보일지 작성
+  // 3. 유저도 state 조작할 수 있게 제작
 
   @override
   Widget build(BuildContext context) {
@@ -36,12 +50,26 @@ class MyApp extends StatelessWidget {
           //  CupertinoIcons사용법 오지게 헤매었네
         ],
       ),
-      body: Text('tsdf'),
+      body: [Text('홈'), Text('샵페이지')][tab],
+      //개쩐다. list로 그냥 페이지를 구현해버리네;
+      // Page넘어가듯이 만들고 싶으면 PageView로 감싸면 됨
       bottomNavigationBar: BottomNavigationBar(
+        currentIndex: tab,
+        //currentIndex를 통해서 현재 선택된 item이 무엇인지 알려줌
         showUnselectedLabels: false,
         //선택 안 된 label 보여줌
-        showSelectedLabels: false,
+        showSelectedLabels: true,
         //선택 된 label 보여줌
+        onTap: (i){
+          //onPressed와 유사하게 tab하면 실행하는 함수
+          //print(i)하면 0부터 차례로 숫자가 할당된 걸 알 수 있음
+          //맨 왼쪽 tab누르면 i에 0이 들어가 있음
+          setState(() {
+            //또 이걸 setState없이 적어주면 안됨ㅠ
+            tab = i;
+          });
+
+        },
         items: [
           BottomNavigationBarItem(
               label: '홈',
