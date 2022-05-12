@@ -5,6 +5,8 @@ import './style.dart' as style;
 //이렇게 스타일을 style이라는 이름으로 불러올 수 있음
 
 var instaLogo = '../assets/svg/insta_logo.svg';
+var like = 0;
+var img =['../assets/img/img01.jpg',];
 
 void main() {
   runApp(MaterialApp(
@@ -50,7 +52,7 @@ class _MyAppState extends State<MyApp> {
           //  CupertinoIcons사용법 오지게 헤매었네
         ],
       ),
-      body: [Text('홈'), Text('샵페이지')][tab],
+      body: [MainContents(), Text('샵페이지')][tab],
       //개쩐다. list로 그냥 페이지를 구현해버리네;
       // Page넘어가듯이 만들고 싶으면 PageView로 감싸면 됨
       bottomNavigationBar: BottomNavigationBar(
@@ -81,6 +83,42 @@ class _MyAppState extends State<MyApp> {
               activeIcon: Icon(Icons.shopping_bag))
         ],
       ),
+    );
+  }
+}
+
+class MainContents extends StatefulWidget {
+  const MainContents({Key? key}) : super(key: key);
+
+  @override
+  State<MainContents> createState() => _MainContentsState();
+}
+
+class _MainContentsState extends State<MainContents> {
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      // ListView.builder안에 return이 꼭 필요함
+      itemCount: 3,
+      itemBuilder: (context, index) {
+          return ListTile(
+            tileColor: Colors.white,
+            title:Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Image(image: NetworkImage(img[0])),
+                Text('좋아요 '+like.toString()),
+              ],
+            ), 
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('글쓴이'),
+                Text('글내용'),
+              ],
+            ),
+          );
+    },
     );
   }
 }
