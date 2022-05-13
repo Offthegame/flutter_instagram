@@ -3,10 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import './style.dart' as style;
 //이렇게 스타일을 style이라는 이름으로 불러올 수 있음
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 var instaLogo = '../assets/svg/insta_logo.svg';
 var like = 0;
-var img =['../assets/img/img01.jpg',];
+var img = [
+  '../assets/img/img01.jpg',
+];
 
 void main() {
   runApp(MaterialApp(
@@ -32,6 +36,28 @@ class _MyAppState extends State<MyApp> {
   // 1. state에 현재 UI 상태 저장
   // 2. state에 따라서 UI가 어떻게 보일지 작성
   // 3. 유저도 state 조작할 수 있게 제작
+  var homeData;
+  getData() async {
+    var result = await http
+        .get(Uri.parse('https://codingapple1.github.io/app/data.json'));
+    // GET함수를 통해 데이터를 가져옴
+    homeData = jsonDecode(result.body);
+    print(homeData[0]);
+    //  jsonDecode하는 이유는 GET으로 가져오면서 String으로 바뀌어있기 때문
+    //  데이터를 뽑기 위해선 homeData[0]['likes']와 같은 방법을 써야함
+    //  jQuery에서는 homeData[0].likes했던 것 같음
+    //  javascript [array] => [list]
+    //  javascript {object} => {map}
+  }
+
+  @override
+  void initState() {
+    // MyAppState 위젯이 실행될 때 실행하는 함수
+    // TODO: implement initState
+    super.initState();
+    getData();
+    //  initState에는 async를 붙여줄 수 없어서 getData()함수를 별도로 제작
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +78,7 @@ class _MyAppState extends State<MyApp> {
           //  CupertinoIcons사용법 오지게 헤매었네
         ],
       ),
-      body: [MainContents(), Text('샵페이지')][tab],
+      body: [MainContents(homeData: homeData), Text('샵페이지')][tab],
       //개쩐다. list로 그냥 페이지를 구현해버리네;
       // Page넘어가듯이 만들고 싶으면 PageView로 감싸면 됨
       bottomNavigationBar: BottomNavigationBar(
@@ -62,7 +88,7 @@ class _MyAppState extends State<MyApp> {
         //선택 안 된 label 보여줌
         showSelectedLabels: true,
         //선택 된 label 보여줌
-        onTap: (i){
+        onTap: (i) {
           //onPressed와 유사하게 tab하면 실행하는 함수
           //print(i)하면 0부터 차례로 숫자가 할당된 걸 알 수 있음
           //맨 왼쪽 tab누르면 i에 0이 들어가 있음
@@ -70,7 +96,6 @@ class _MyAppState extends State<MyApp> {
             //또 이걸 setState없이 적어주면 안됨ㅠ
             tab = i;
           });
-
         },
         items: [
           BottomNavigationBarItem(
@@ -88,7 +113,8 @@ class _MyAppState extends State<MyApp> {
 }
 
 class MainContents extends StatefulWidget {
-  const MainContents({Key? key}) : super(key: key);
+  MainContents({Key? key, this.homeData}) : super(key: key);
+  final homeData;
 
   @override
   State<MainContents> createState() => _MainContentsState();
@@ -97,28 +123,36 @@ class MainContents extends StatefulWidget {
 class _MainContentsState extends State<MainContents> {
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      // ListView.builder안에 return이 꼭 필요함
-      itemCount: 3,
-      itemBuilder: (context, index) {
-          return ListTile(
-            tileColor: Colors.white,
-            title:Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Image(image: NetworkImage(img[0])),
-                Text('좋아요 '+like.toString()),
-              ],
-            ), 
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('글쓴이'),
-                Text('글내용'),
-              ],
-            ),
+    if (widget.homeData != null) {
+      // 수업에서 .isNotEmpty 함수를 썼었는데 작동이 안돼서 !=null로 바꿈
+      // 처음에 데이터 null상태일 때 ListView를 실행해서 Error가 발생
+      return ListView.builder(
+        // ListView.builder안에 return이 꼭 필요함
+        itemCount: 3,
+        itemBuilder: (context, index) {
+          return Column(
+            // ListTile을 안 쓴 이유는 터치 시 하나의 작업만 하지 않도록 하기 위함
+            children: [
+              Image.network(widget.homeData[index]['image'].toString()),
+              Container(
+                constraints: BoxConstraints(maxWidth: 600),
+                padding: EdgeInsets.all(20),
+                width: double.infinity,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('좋아요 ' + widget.homeData[index]['likes'].toString()),
+                    Text(widget.homeData[index]['user'].toString()),
+                    Text(widget.homeData[index]['content'].toString()),
+                  ],
+                ),
+              )
+            ],
           );
-    },
-    );
+        },
+      );
+    } else {
+      return Text('로딩중');
+    }
   }
 }

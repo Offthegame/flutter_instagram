@@ -1,6 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.instagram">
-   <application
+    <uses-permission android:name="android.permission.INTERNET" />
+<!--    인터넷 사용 허락 받는 코드    -->
+
+
+    <application
         android:label="instagram"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
