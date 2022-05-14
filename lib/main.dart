@@ -41,7 +41,19 @@ class _MyAppState extends State<MyApp> {
     var result = await http
         .get(Uri.parse('https://codingapple1.github.io/app/data.json'));
     // GET함수를 통해 데이터를 가져옴
-    homeData = jsonDecode(result.body);
+
+    // 서버가 다운됐거나 요청 경로가 이상할 경우 예외처리 필요
+    // if (result.statusCode == 200) {
+    // //  200은 성공 응답코드
+    // } else {
+    // //  성공하지 않았을 경우
+    // }
+    // Dio라는 패키지를 이용하면 더 쉽게 할 수 있다고 함
+
+    setState(() {
+     homeData = jsonDecode(result.body);
+     // 강의에서는 setState에 넣어서 데이터를 변해줌
+    });
     print(homeData[0]);
     //  jsonDecode하는 이유는 GET으로 가져오면서 String으로 바뀌어있기 때문
     //  데이터를 뽑기 위해선 homeData[0]['likes']와 같은 방법을 써야함
@@ -79,6 +91,8 @@ class _MyAppState extends State<MyApp> {
         ],
       ),
       body: [MainContents(homeData: homeData), Text('샵페이지')][tab],
+      // FutureBuilder(future : data, builder: () {})사용하면 데이터를 알아서 기다려줌
+      // FutureBuilder 사용 시 실시간 데이터 업데이트가 어려움
       //개쩐다. list로 그냥 페이지를 구현해버리네;
       // Page넘어가듯이 만들고 싶으면 PageView로 감싸면 됨
       bottomNavigationBar: BottomNavigationBar(
@@ -115,6 +129,7 @@ class _MyAppState extends State<MyApp> {
 class MainContents extends StatefulWidget {
   MainContents({Key? key, this.homeData}) : super(key: key);
   final homeData;
+  //부모가 보낸 값은 대개 수정하지 않기에 final로
 
   @override
   State<MainContents> createState() => _MainContentsState();
@@ -123,6 +138,7 @@ class MainContents extends StatefulWidget {
 class _MainContentsState extends State<MainContents> {
   @override
   Widget build(BuildContext context) {
+    //print의 경우 이렇게 함수 안처럼 보이는 곳에서 사용 가능함
     if (widget.homeData != null) {
       // 수업에서 .isNotEmpty 함수를 썼었는데 작동이 안돼서 !=null로 바꿈
       // 처음에 데이터 null상태일 때 ListView를 실행해서 Error가 발생
@@ -152,7 +168,7 @@ class _MainContentsState extends State<MainContents> {
         },
       );
     } else {
-      return Text('로딩중');
+      return CircularProgressIndicator();
     }
   }
 }
