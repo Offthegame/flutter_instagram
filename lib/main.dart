@@ -136,6 +136,62 @@ class MainContents extends StatefulWidget {
 }
 
 class _MainContentsState extends State<MainContents> {
+
+  var scroll = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    scroll.addListener(() {
+      //왼쪽(scroll) 변수가 변할 때마다 함수 실행
+      //미사용 시 addListener를 제거하는 것이 좋음
+      print(scroll.position.pixels);
+    //  scroll.position.pixels 스크롤 되는 현재 위치 알려줌
+    //  scroll.position.maxScrollExtent 스크롤 최대 높이
+    //  scroll.position.userScrollDirection 스크롤 되는 방향
+      if(scroll.position.pixels == scroll.position.maxScrollExtent && scrolled == 0) {
+        //  scroll이 최대치에 이르면 getNewData()실행!
+        setState(() {
+          getNewData();
+        });
+        scrolled += 1;
+
+      } else if(scroll.position.pixels == scroll.position.maxScrollExtent && scrolled == 1) {
+        setState(() {
+          getDataAgain();
+        });
+        scrolled += 1;
+      }
+    });
+
+  }
+  var newData;
+  // 새 데이터를 담는 변수
+  var scrolled = 0;
+  // 끝에 도착한 횟수!
+  getNewData() async {
+    var newResult = await http
+        .get(Uri.parse('https://codingapple1.github.io/app/more1.json'));
+    // GET함수를 통해 새 데이터를 가져옴
+    newData = jsonDecode(newResult.body);
+
+    setState(() {
+      // 강의에서는 setState에 넣어서 데이터를 변해줌
+      widget.homeData.add(newData);
+    });
+  }
+
+  getDataAgain() async {
+    var newResult = await http
+        .get(Uri.parse('https://codingapple1.github.io/app/more2.json'));
+    // GET함수를 통해 새 데이터를 가져옴
+    newData = jsonDecode(newResult.body);
+
+    setState(() {
+      // 강의에서는 setState에 넣어서 데이터를 변해줌
+      widget.homeData.add(newData);
+    });
+  }
   @override
   Widget build(BuildContext context) {
     //print의 경우 이렇게 함수 안처럼 보이는 곳에서 사용 가능함
@@ -144,7 +200,8 @@ class _MainContentsState extends State<MainContents> {
       // 처음에 데이터 null상태일 때 ListView를 실행해서 Error가 발생
       return ListView.builder(
         // ListView.builder안에 return이 꼭 필요함
-        itemCount: 3,
+        itemCount: widget.homeData.length,
+        controller: scroll,
         itemBuilder: (context, index) {
           return Column(
             // ListTile을 안 쓴 이유는 터치 시 하나의 작업만 하지 않도록 하기 위함
@@ -157,7 +214,8 @@ class _MainContentsState extends State<MainContents> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('좋아요 ' + widget.homeData[index]['likes'].toString()),
+                    Text('좋아요 ${widget.homeData[index]['likes']}'),
+                    // .toString() 없이 좋아요 값을 Text안에서 보여줄 수 있음
                     Text(widget.homeData[index]['user'].toString()),
                     Text(widget.homeData[index]['content'].toString()),
                   ],
